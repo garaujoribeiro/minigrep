@@ -1,4 +1,4 @@
-use std::{ env, path::PathBuf };
+use std::{ env, path::PathBuf, error::Error, fs };
 
 pub struct Config {
     pub query: String,
@@ -6,7 +6,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, String> {
+    pub fn build(args: &[String]) -> Result<Config, String> {
         if args.len() < 3 {
             return Err(String::from("Too few arguments"));
         }
@@ -14,10 +14,20 @@ impl Config {
         let query = args[1].clone();
         let file = &args[2];
 
-        let dir_name = env::current_dir().expect("Erro ao pegar o diretorio atual");
+        let dir_name = env
+            ::current_dir()
+            .expect("Error while trying to get the name of the current directory");
 
         let file_path = dir_name.join(file);
 
         Ok(Config { query, file_path })
+    }
+
+    pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+        let contents = fs::read_to_string(config.file_path)?;
+
+        println!("{}", contents);
+
+        Ok(())
     }
 }
