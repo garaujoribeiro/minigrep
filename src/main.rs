@@ -1,14 +1,13 @@
+use minigrep::parse_arguments;
 use std::env;
+use std::fs;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 3 {
-        panic!("Voce nao forneceu argumentos suficientes");
-    };
+    let (_query, file_path) = parse_arguments(&args).expect("Erro");
 
-    let query = &args[1];
-    let file = &args[1];
+    let contents = fs::read_to_string(file_path).expect("should have been able to read the file");
 
-    println!("text to search for {}, file to search for {}", query, file);
+    println!("{}", contents);
 }
