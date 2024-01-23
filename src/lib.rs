@@ -3,6 +3,7 @@ use std::{ env, path::PathBuf, error::Error, fs };
 pub struct Config {
     pub query: String,
     pub file_path: PathBuf,
+    pub ignore_case: bool,
 }
 
 impl Config {
@@ -20,14 +21,20 @@ impl Config {
 
         let file_path = dir_name.join(file);
 
-        Ok(Config { query, file_path })
+        let ignore_case = env::var("IGNORE_CASE").is_ok();
+
+        Ok(Config { query, file_path, ignore_case })
     }
 
     pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         let contents = fs::read_to_string(config.file_path)?;
+        let query = config.query;
 
-        println!("{}", contents);
-
+        if config.ignore_case {
+            search(&query, &contents);
+        } else {
+            search_case_insensitive(&query, &contents);
+        }
         Ok(())
     }
 }
