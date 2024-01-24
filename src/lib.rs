@@ -7,13 +7,23 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, String> {
-        if args.len() < 3 {
-            return Err(String::from("Too few arguments"));
-        }
+    pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+        // program name string, so we can ignore that
+        args.next();
 
-        let query = args[1].clone();
-        let file = &args[2];
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => {
+                return Err("Didn't provide a query string");
+            }
+        };
+
+        let file = match args.next() {
+            Some(arg) => arg,
+            None => {
+                return Err("Didn't provide a file path");
+            }
+        };
 
         let dir_name = env
             ::current_dir()
